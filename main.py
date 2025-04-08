@@ -10,6 +10,15 @@ from deep_translator import GoogleTranslator
 import nltk
 from datetime import datetime, time as dtime
 import pytz
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+TELEGRAM_API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
+COINDESK_API_URL = os.getenv("COINDESK_API_URL")
+API_KEY = os.getenv("API_KEY")
 
 # === Summarizer ===
 def summarize_text(text, sentence_count=6):
@@ -23,11 +32,6 @@ logging.basicConfig(
     format='[%(asctime)s] %(levelname)s: %(message)s',
     level=logging.INFO
 )
-
-TELEGRAM_API_TOKEN = '8089082004:AAFLbvPyLyhbQP06j3FjcwHZFvOFxY1WE2k'
-CHAT_ID = '-1002433049711'
-COINDESK_API_URL = 'https://data-api.coindesk.com/news/v1/article/list?lang=EN&limit=10'
-API_KEY = '58098b5d22e4272c81a67f25d199c21ef3c98d48c9e379777d3ec15529d381bd'
 
 bot = Bot(token=TELEGRAM_API_TOKEN)
 nltk.download('punkt', quiet=True)
