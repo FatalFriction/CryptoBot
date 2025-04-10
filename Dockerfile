@@ -13,8 +13,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download punkt using default NLTK path
-RUN python -c "import nltk; nltk.download('punkt')"
+# Set NLTK_DATA environment variable
+ENV NLTK_DATA=/app/nltk_data
+
+# Create the nltk_data directory and download punkt into it
+RUN mkdir -p /app/nltk_data && \
+    python -c "import nltk; nltk.download('punkt', download_dir='/app/nltk_data')"
 
 # Copy project files
 COPY . .
