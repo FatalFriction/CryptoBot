@@ -1,24 +1,27 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+# === Setup NLTK Data Path ===
+import nltk
+nltk_data_path = "/app/nltk_data"
+os.environ["NLTK_DATA"] = nltk_data_path
+nltk.download("punkt", download_dir=nltk_data_path, quiet=True)
+
 import requests
 import html
 import logging
 import asyncio
 from telegram import Bot
 from sumy.parsers.plaintext import PlaintextParser
-from sumy.nlp.tokenizers import Tokenizer
+from sumy.nlp.tokenizers import Tokenizer as SumyTokenizer
+from nltk.data import path as nltk_path
+nltk_path.append("/app/nltk_data")
+
 from sumy.summarizers.lsa import LsaSummarizer
 from deep_translator import GoogleTranslator
-import nltk
 from datetime import datetime, time as dtime
 import pytz
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
-# === Setup NLTK Data Path ===
-nltk_data_path = "/app/nltk_data"  # Railway persistent path
-os.environ["NLTK_DATA"] = nltk_data_path
-nltk.download("punkt", download_dir=nltk_data_path, quiet=True)
 
 TELEGRAM_API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
@@ -27,7 +30,7 @@ API_KEY = os.getenv("API_KEY")
 
 # === Summarizer ===
 def summarize_text(text, sentence_count=6):
-    parser = PlaintextParser.from_string(text, Tokenizer("english"))
+    parser = PlaintextParser.from_string(text, SumyTokenizer("english"))
     summarizer = LsaSummarizer()
     summary = summarizer(parser.document, sentence_count)
     return " ".join(str(sentence) for sentence in summary)
