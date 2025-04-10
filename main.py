@@ -4,11 +4,12 @@ import logging
 import asyncio
 from telegram import Bot
 from sumy.parsers.plaintext import PlaintextParser
-from sumy.nlp.tokenizers import Tokenizer as SumyTokenizer
 from sumy.summarizers.lsa import LsaSummarizer
 from deep_translator import GoogleTranslator
 import nltk
 from nltk import data as nltk_data
+from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktParameters
+from sumy.nlp.tokenizers import Tokenizer as SumyTokenizer
 from datetime import datetime, time as dtime
 import pytz
 from dotenv import load_dotenv
@@ -22,6 +23,14 @@ os.makedirs(nltk_data_path, exist_ok=True)
 os.environ["NLTK_DATA"] = nltk_data_path
 nltk_data.path.append(nltk_data_path)
 nltk.download("punkt", download_dir=nltk_data_path, quiet=True)
+
+# === Patch Sumy to use standard Punkt tokenizer ===
+def patched_sumy_tokenizer(language):
+    if language == "english":
+        return PunktSentenceTokenizer(PunktParameters())
+    raise ValueError(f"Unsupported language: {language}")
+
+SumyTokenizer._get_sentence_tokenizer = staticmethod(patched_sumy_tokenizer)
 
 # === Summarizer ===
 def summarize_text(text, sentence_count=6):
@@ -85,7 +94,7 @@ async def send_article(article):
         summary = html.escape(summarize_text(body))
         source_name = html.escape(article.get("SOURCE_DATA", {}).get("NAME", "Unknown Source"))
         source_link = f'<a href="{url}">{source_name}</a>'
-        
+
         # Translate to Bahasa Indonesia
         title = GoogleTranslator(source='auto', target='id').translate(title)
         summary = GoogleTranslator(source='auto', target='id').translate(summary)
@@ -101,10 +110,10 @@ async def send_article(article):
         )
 
         await bot.send_message(
-                chat_id=CHAT_ID,
-                text=message,
-                parse_mode="HTML"
-            )
+            chat_id=CHAT_ID,
+            text=message,
+            parse_mode="HTML"
+        )
 
         sent_urls.add(url)
 
