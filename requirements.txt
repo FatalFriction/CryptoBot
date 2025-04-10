@@ -1,8 +1,7 @@
-requests
-html5lib
-python-telegram-bot~=20.0
-sumy
-deep-translator
 nltk
+sumy
+python-telegram-bot
+deep-translator
 python-dotenv
 pytz
+requests
