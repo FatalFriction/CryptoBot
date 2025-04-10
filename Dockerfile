@@ -1,7 +1,6 @@
 FROM python:3.12-slim
 
-# Set environment and working directory
-ENV NLTK_DATA=/app/nltk_data
+# Set working directory
 WORKDIR /app
 
 # Install system dependencies
@@ -14,14 +13,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download punkt to NLTK_DATA
-RUN python -m nltk.downloader -d /app/nltk_data punkt
+# Download punkt using default NLTK path
+RUN python -c "import nltk; nltk.download('punkt')"
 
-# Copy application files
+# Copy project files
 COPY . .
 
-# Re-declare nltk data path for runtime
-ENV NLTK_DATA=/app/nltk_data
-
-# Run the app
+# Run the script
 CMD ["python", "main.py"]
