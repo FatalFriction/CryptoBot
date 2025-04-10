@@ -8,12 +8,12 @@ from sumy.summarizers.lsa import LsaSummarizer
 from deep_translator import GoogleTranslator
 import nltk
 from nltk import data as nltk_data
-from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktParameters
 from sumy.nlp.tokenizers import Tokenizer as SumyTokenizer
 from datetime import datetime, time as dtime
 import pytz
 from dotenv import load_dotenv
 import os
+import shutil
 
 load_dotenv()
 
@@ -22,15 +22,20 @@ nltk_data_path = "/app/nltk_data"
 os.makedirs(nltk_data_path, exist_ok=True)
 os.environ["NLTK_DATA"] = nltk_data_path
 nltk_data.path.append(nltk_data_path)
-nltk.download("punkt", download_dir=nltk_data_path, quiet=True)
 
-# === Patch Sumy to use standard Punkt tokenizer ===
-def patched_sumy_tokenizer(language):
-    if language == "english":
-        return PunktSentenceTokenizer(PunktParameters())
-    raise ValueError(f"Unsupported language: {language}")
+# Ensure punkt is downloaded properly
+nltk.download("punkt", quiet=True)
 
-SumyTokenizer._get_sentence_tokenizer = staticmethod(patched_sumy_tokenizer)
+# Copy punkt files to custom path to fix sumy tokenizer issue
+default_punkt_path = nltk_data.find("tokenizers/punkt")
+custom_punkt_path = os.path.join(nltk_data_path, "tokenizers/punkt")
+os.makedirs(custom_punkt_path, exist_ok=True)
+
+for filename in os.listdir(default_punkt_path):
+    src = os.path.join(default_punkt_path, filename)
+    dst = os.path.join(custom_punkt_path, filename)
+    if not os.path.exists(dst):
+        shutil.copy(src, dst)
 
 # === Summarizer ===
 def summarize_text(text, sentence_count=6):
@@ -51,8 +56,6 @@ logging.basicConfig(
 )
 
 bot = Bot(token=TELEGRAM_API_TOKEN)
-
-# Store already sent URLs to avoid duplicates
 sent_urls = set()
 
 # === Fetcher ===
@@ -131,7 +134,7 @@ async def fetch_loop(queue: asyncio.Queue):
         logging.info("Sleeping 30 minutes before next fetch...")
         await asyncio.sleep(1800)
 
-# Set timezone to UTC+7
+# === Time Window Checker ===
 timezone = pytz.timezone("Asia/Bangkok")
 
 def is_within_allowed_hours():
