@@ -17,13 +17,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Download NLTK punkt model and fix path for Sumy compatibility
 RUN python -m nltk.downloader -d $NLTK_DATA punkt \
  && mkdir -p $NLTK_DATA/tokenizers/punkt_tab/english \
- && cp -r $NLTK_DATA/tokenizers/punkt/english/* $NLTK_DATA/tokenizers/punkt_tab/english/
+ && cp $NLTK_DATA/tokenizers/punkt/english.pickle $NLTK_DATA/tokenizers/punkt_tab/english/english.pickle
 
 # Copy application files
 COPY . .
 
-# Ensure the NLTK data path is used at runtime
+# Re-declare nltk data path for runtime
 ENV NLTK_DATA=/app/nltk_data
 
-# Run the main script
+# Run the app
 CMD ["python", "main.py"]
