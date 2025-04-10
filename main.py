@@ -17,27 +17,13 @@ import shutil
 
 load_dotenv()
 
-# === Setup NLTK Data Path ===
 nltk_data_path = "/app/nltk_data"
 os.makedirs(nltk_data_path, exist_ok=True)
 os.environ["NLTK_DATA"] = nltk_data_path
-nltk_data.path.append(nltk_data_path)
+nltk.data.path.append(nltk_data_path)
 
-# Ensure punkt is downloaded properly
-nltk.download("punkt", quiet=True)
-
-# Copy punkt files to expected 'punkt_tab' path to fix Sumy tokenizer crash
-punkt_source_path = nltk_data.find("tokenizers/punkt")
-punkt_tab_target_path = os.path.join(nltk_data_path, "tokenizers/punkt_tab/english")
-os.makedirs(punkt_tab_target_path, exist_ok=True)
-
-source_punkt_file = os.path.join(punkt_source_path, "english.pickle")
-target_punkt_file = os.path.join(punkt_tab_target_path, "english.pickle")
-
-if os.path.exists(source_punkt_file):
-    shutil.copy(source_punkt_file, target_punkt_file)
-else:
-    raise FileNotFoundError(f"{source_punkt_file} not found!")
+# Download punkt tokenizer
+nltk.download("punkt", download_dir=nltk_data_path, quiet=True)
 
 # === Summarizer ===
 def summarize_text(text, sentence_count=6):
