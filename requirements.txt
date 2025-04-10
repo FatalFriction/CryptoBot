@@ -1,0 +1,8 @@
+requests
+html5lib
+python-telegram-bot~=20.0
+sumy
+deep-translator
+nltk
+python-dotenv
+pytz
