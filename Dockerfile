@@ -14,16 +14,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download punkt and move it where sumy expects it
+# Download NLTK punkt model and fix path for Sumy compatibility
 RUN python -m nltk.downloader -d $NLTK_DATA punkt \
  && mkdir -p $NLTK_DATA/tokenizers/punkt_tab/english \
- && cp $NLTK_DATA/tokenizers/punkt/english.pickle $NLTK_DATA/tokenizers/punkt_tab/english/english.pickle
+ && cp -r $NLTK_DATA/tokenizers/punkt/english/* $NLTK_DATA/tokenizers/punkt_tab/english/
 
-# Copy project files
+# Copy application files
 COPY . .
 
-# Expose NLTK path at runtime
+# Ensure the NLTK data path is used at runtime
 ENV NLTK_DATA=/app/nltk_data
 
-# Run the script
+# Run the main script
 CMD ["python", "main.py"]
