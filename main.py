@@ -27,7 +27,7 @@ API_KEY = os.getenv("API_KEY")
 
 # === Summarizer ===
 def summarize_text(text, sentence_count=6):
-    parser = PlaintextParser.from_string(text, Tokenizer("english", path=nltk_data_path))
+    parser = PlaintextParser.from_string(text, Tokenizer("english"))
     summarizer = LsaSummarizer()
     summary = summarizer(parser.document, sentence_count)
     return " ".join(str(sentence) for sentence in summary)
