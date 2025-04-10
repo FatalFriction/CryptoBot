@@ -26,14 +26,16 @@ nltk_data.path.append(nltk_data_path)
 # Ensure punkt is downloaded properly
 nltk.download("punkt", quiet=True)
 
-# Copy punkt files to custom path to fix sumy tokenizer issue
-default_punkt_path = nltk_data.find("tokenizers/punkt")
-custom_punkt_path = os.path.join(nltk_data_path, "tokenizers/punkt")
-os.makedirs(custom_punkt_path, exist_ok=True)
+# Copy punkt files to expected 'punkt_tab' path to fix Sumy tokenizer crash
+punkt_source_path = nltk_data.find("tokenizers/punkt")
+punkt_tab_target_path = os.path.join(nltk_data_path, "tokenizers/punkt_tab/english")
+os.makedirs(punkt_tab_target_path, exist_ok=True)
 
-for filename in os.listdir(default_punkt_path):
-    src = os.path.join(default_punkt_path, filename)
-    dst = os.path.join(custom_punkt_path, filename)
+source_english_dir = os.path.join(punkt_source_path, "english")
+
+for filename in os.listdir(source_english_dir):
+    src = os.path.join(source_english_dir, filename)
+    dst = os.path.join(punkt_tab_target_path, filename)
     if not os.path.exists(dst):
         shutil.copy(src, dst)
 
