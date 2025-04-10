@@ -1,30 +1,29 @@
-# Use a slim Python image
 FROM python:3.12-slim
 
-# Set working directory
+# Set environment and working directory
+ENV NLTK_DATA=/app/nltk_data
 WORKDIR /app
 
-# Copy only requirements first to cache better
-COPY requirements.txt .
-
-# Install system dependencies and Python dependencies
-RUN apt-get update && apt-get install -y \
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    libffi-dev \
-    libssl-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Copy and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Download NLTK punkt tokenizer at build time
-RUN python -m nltk.downloader -d /app/nltk_data punkt
+# Download punkt and move it where sumy expects it
+RUN python -m nltk.downloader -d $NLTK_DATA punkt \
+ && mkdir -p $NLTK_DATA/tokenizers/punkt_tab/english \
+ && cp $NLTK_DATA/tokenizers/punkt/english.pickle $NLTK_DATA/tokenizers/punkt_tab/english/english.pickle
 
-# Copy app code
+# Copy project files
 COPY . .
 
-# Set env so NLTK knows where to look
+# Expose NLTK path at runtime
 ENV NLTK_DATA=/app/nltk_data
 
-# Start the app
+# Run the script
 CMD ["python", "main.py"]
