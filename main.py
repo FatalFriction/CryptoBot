@@ -69,28 +69,37 @@ async def send_article(article):
             logging.info(f"Skipped duplicate article: {url}")
             return
 
-        title = html.escape(article.get("TITLE", "No Title"))
+        title = article.get("TITLE", "No Title")
         body = article.get("BODY", "")
-        sentiment = html.escape(article.get("SENTIMENT", ""))
-        image_url = article.get("IMAGE_URL", "")
+        sentiment = article.get("SENTIMENT", "")
         categories = article.get("CATEGORY_DATA", [])
-        coin_names = html.escape(" ".join(f"#{(cat.get('CATEGORY', ''))}" for cat in categories if cat.get('CATEGORY')))
-        summary = html.escape(summarize_text(body))
-        source_name = html.escape(article.get("SOURCE_DATA", {}).get("NAME", "Unknown Source"))
-        source_link = f'<a href="{url}">{source_name}</a>'
+        coin_names = " ".join(f"#{cat.get('CATEGORY')}" for cat in categories if cat.get('CATEGORY'))
+        source_name = article.get("SOURCE_DATA", {}).get("NAME", "Unknown Source")
 
-        # Translate to Bahasa Indonesia
-        title = GoogleTranslator(source='auto', target='id').translate(title)
-        summary = GoogleTranslator(source='auto', target='id').translate(summary)
-        sentiment = GoogleTranslator(source='auto', target='id').translate(sentiment)
+        # Summarize and translate
+        summary_en = summarize_text(body)
+        title_id = GoogleTranslator(source='auto', target='id').translate(title)
+        summary_id = GoogleTranslator(source='auto', target='id').translate(summary_en)
+        sentiment_id = GoogleTranslator(source='auto', target='id').translate(sentiment)
+
+        # Escape after translation
+        title_id = html.escape(title_id)
+        summary_id = html.escape(summary_id)
+        sentiment_id = html.escape(sentiment_id)
+        coin_names = html.escape(coin_names)
+        source_link = f'<a href="{url}">{html.escape(source_name)}</a>'
 
         message = (
-            f"📰 <b>{title}</b>\n\n"
-            f"{summary}\n\n"
-            f"🧠 Sentiment Crypto Market {sentiment.capitalize()}\n"
-            f"📡 Sumber {source_link}\n\n"
-            f'Untuk yang belum pakai MEXC bisa pakai link official partnership kita di sini tinggal klik <a href="https://www.mexc.com/register?inviteCode=mexc-12Hnph">Register</a> atau via Link Alternatif <a href="https://promote.mexc.com/a/CVWtpYro">Register</a> lalu selesaikan pengisian Dokumen-nya\n\n'
-            f"{coin_names}\n\n@kriptorakyat"
+            f"📰 <b>{title_id}</b>\n\n"
+            f"{summary_id}\n\n"
+            f"🧠 Sentiment Crypto Market: {sentiment_id.capitalize()}\n"
+            f"📡 Sumber: {source_link}\n\n"
+            f"Untuk yang belum pakai MEXC bisa pakai link official partnership kita:\n"
+            f"➡️ <a href=\"https://www.mexc.com/register?inviteCode=mexc-12Hnph\">Register</a> atau\n"
+            f"➡️ <a href=\"https://promote.mexc.com/a/CVWtpYro\">Link Alternatif</a>\n"
+            f"Pastikan isi dokumen untuk verifikasi ya!\n\n"
+            f"{coin_names}\n\n"
+            f"@kriptorakyat"
         )
 
         await bot.send_message(
