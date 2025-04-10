@@ -31,13 +31,13 @@ punkt_source_path = nltk_data.find("tokenizers/punkt")
 punkt_tab_target_path = os.path.join(nltk_data_path, "tokenizers/punkt_tab/english")
 os.makedirs(punkt_tab_target_path, exist_ok=True)
 
-source_english_dir = os.path.join(punkt_source_path, "english")
+source_punkt_file = os.path.join(punkt_source_path, "english.pickle")
+target_punkt_file = os.path.join(punkt_tab_target_path, "english.pickle")
 
-for filename in os.listdir(source_english_dir):
-    src = os.path.join(source_english_dir, filename)
-    dst = os.path.join(punkt_tab_target_path, filename)
-    if not os.path.exists(dst):
-        shutil.copy(src, dst)
+if os.path.exists(source_punkt_file):
+    shutil.copy(source_punkt_file, target_punkt_file)
+else:
+    raise FileNotFoundError(f"{source_punkt_file} not found!")
 
 # === Summarizer ===
 def summarize_text(text, sentence_count=6):
