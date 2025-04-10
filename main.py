@@ -1,13 +1,3 @@
-import os
-from dotenv import load_dotenv
-load_dotenv()
-
-# === Setup NLTK Data Path ===
-import nltk
-nltk_data_path = "/app/nltk_data"
-os.environ["NLTK_DATA"] = nltk_data_path
-nltk.download("punkt", download_dir=nltk_data_path, quiet=True)
-
 import requests
 import html
 import logging
@@ -15,18 +5,23 @@ import asyncio
 from telegram import Bot
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer as SumyTokenizer
-from nltk.data import path as nltk_path
-nltk_path.append("/app/nltk_data")
-
 from sumy.summarizers.lsa import LsaSummarizer
 from deep_translator import GoogleTranslator
+import nltk
+from nltk import data as nltk_data
 from datetime import datetime, time as dtime
 import pytz
+from dotenv import load_dotenv
+import os
 
-TELEGRAM_API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
-COINDESK_API_URL = os.getenv("COINDESK_API_URL")
-API_KEY = os.getenv("API_KEY")
+load_dotenv()
+
+# === Setup NLTK Data Path ===
+nltk_data_path = "/app/nltk_data"
+os.makedirs(nltk_data_path, exist_ok=True)
+os.environ["NLTK_DATA"] = nltk_data_path
+nltk_data.path.append(nltk_data_path)
+nltk.download("punkt", download_dir=nltk_data_path, quiet=True)
 
 # === Summarizer ===
 def summarize_text(text, sentence_count=6):
@@ -34,6 +29,11 @@ def summarize_text(text, sentence_count=6):
     summarizer = LsaSummarizer()
     summary = summarizer(parser.document, sentence_count)
     return " ".join(str(sentence) for sentence in summary)
+
+TELEGRAM_API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
+COINDESK_API_URL = os.getenv("COINDESK_API_URL")
+API_KEY = os.getenv("API_KEY")
 
 # === Setup ===
 logging.basicConfig(
