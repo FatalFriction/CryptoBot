@@ -7,23 +7,16 @@ from sumy.parsers.plaintext import PlaintextParser
 from sumy.summarizers.lsa import LsaSummarizer
 from deep_translator import GoogleTranslator
 import nltk
-from nltk import data as nltk_data
 from sumy.nlp.tokenizers import Tokenizer as SumyTokenizer
 from datetime import datetime, time as dtime
 import pytz
 from dotenv import load_dotenv
 import os
-import shutil
 
 load_dotenv()
 
-nltk_data_path = "/app/nltk_data"
-os.makedirs(nltk_data_path, exist_ok=True)
-os.environ["NLTK_DATA"] = nltk_data_path
-nltk.data.path.append(nltk_data_path)
-
-# Download punkt tokenizer
-nltk.download("punkt", download_dir=nltk_data_path, quiet=True)
+# Download punkt tokenizer (safe in dev/local)
+nltk.download("punkt", quiet=True)
 
 # === Summarizer ===
 def summarize_text(text, sentence_count=6):
