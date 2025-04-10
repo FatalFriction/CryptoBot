@@ -15,6 +15,11 @@ import os
 
 load_dotenv()
 
+# === Setup NLTK Data Path ===
+nltk_data_path = "/app/nltk_data"  # Railway persistent path
+os.environ["NLTK_DATA"] = nltk_data_path
+nltk.download("punkt", download_dir=nltk_data_path, quiet=True)
+
 TELEGRAM_API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 COINDESK_API_URL = os.getenv("COINDESK_API_URL")
@@ -22,7 +27,7 @@ API_KEY = os.getenv("API_KEY")
 
 # === Summarizer ===
 def summarize_text(text, sentence_count=6):
-    parser = PlaintextParser.from_string(text, Tokenizer("english"))
+    parser = PlaintextParser.from_string(text, Tokenizer("english", path=nltk_data_path))
     summarizer = LsaSummarizer()
     summary = summarizer(parser.document, sentence_count)
     return " ".join(str(sentence) for sentence in summary)
