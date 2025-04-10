@@ -18,7 +18,7 @@ ENV NLTK_DATA=/app/nltk_data
 
 # Create the nltk_data directory and download punkt into it
 RUN mkdir -p /app/nltk_data && \
-    python -c "import nltk; nltk.download('punkt', download_dir='/app/nltk_data')"
+    python -c "import nltk; nltk.download('punkt_tab', download_dir='/app/nltk_data')"
 
 # Copy project files
 COPY . .
