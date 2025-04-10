@@ -4,8 +4,8 @@ import logging
 import asyncio
 from telegram import Bot
 from sumy.parsers.plaintext import PlaintextParser
-from nltk.tokenize import sent_tokenize
 from sumy.summarizers.lsa import LsaSummarizer
+from sumy.nlp.tokenizers import Tokenizer as SumyTokenizer
 from deep_translator import GoogleTranslator
 import nltk
 from datetime import datetime, time as dtime
@@ -16,12 +16,11 @@ import os
 load_dotenv()
 
 # Download punkt tokenizer (safe in dev/local)
-nltk.download("punkt", quiet=True)
+nltk.download("punkt_tab", quiet=True)
 
 # === Summarizer ===
 def summarize_text(text, sentence_count=6):
-    sentences = sent_tokenize(text)
-    parser = PlaintextParser.from_string(" ".join(sentences), lambda txt: sentences)
+    parser = PlaintextParser.from_string(text, SumyTokenizer("english"))
     summarizer = LsaSummarizer()
     summary = summarizer(parser.document, sentence_count)
     return " ".join(str(sentence) for sentence in summary)
