@@ -39,7 +39,6 @@ logging.basicConfig(
 )
 
 bot = Bot(token=TELEGRAM_API_TOKEN)
-nltk.download('punkt', quiet=True)
 
 # Store already sent URLs to avoid duplicates
 sent_urls = set()
