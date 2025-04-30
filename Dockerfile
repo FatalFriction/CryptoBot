@@ -17,8 +17,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV NLTK_DATA=/app/nltk_data
 
 # Create the nltk_data directory and download punkt into it
-RUN mkdir -p /app/nltk_data && \
-    python -c "import nltk; nltk.download('punkt_tab', download_dir='/app/nltk_data')"
+RUN python -m nltk.downloader -d $NLTK_DATA punkt && \
+    mkdir -p $NLTK_DATA/tokenizers/punkt_tab/english && \
+    cp -r $NLTK_DATA/tokenizers/punkt/english/* $NLTK_DATA/tokenizers/punkt_tab/english/ || echo "Punkt data not found; skipping copy"
 
 # Copy project files
 COPY . .
